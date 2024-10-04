@@ -21,7 +21,7 @@ import prime.control.LEDs.Patterns.BlinkPattern;
 import prime.control.LEDs.Patterns.ChasePattern;
 import prime.control.LEDs.Patterns.SolidPattern;
 
-public class Shooter extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase {
 
   private ShooterConfig m_config;
 
@@ -37,17 +37,25 @@ public class Shooter extends SubsystemBase {
    * Creates a new Shooter with a given configuration
    * @param config
    */
-  public Shooter(ShooterConfig config, PwmLEDs leds) {
-    m_config = config;
+  public ShooterSubsystem(PwmLEDs leds) {
+    public class Map {
+      public static final int TALONFX_CAN_ID = 20;
+      public static final int VICTORSPX_CAN_ID = 19;
+      public static final boolean TALONFX_INVERTED = false;
+      public static final boolean VICTORSPX_INVERTED = false;
+      public static final int NOTE_DETECTOR_DIO_CHANNEL = 7;
+      public static final int ELEVATION_SOLENOID_FORWARD_CHANNEL = 6;
+      public static final int ELEVATION_SOLENOID_REVERSE_CHANNEL = 7;
+    }
     m_leds = leds;
     setName("Shooter");
 
-    m_talonFX = new TalonFX(m_config.TalonFXCanID);
+    m_talonFX = new TalonFX(Map.TALONFX_CAN_ID);
     m_talonFX.getConfigurator().apply(new TalonFXConfiguration());
     m_talonFX.setInverted(true);
     m_talonFX.setNeutralMode(NeutralModeValue.Brake);
 
-    m_victorSPX = new VictorSPX(m_config.VictorSPXCanID);
+    m_victorSPX = new VictorSPX(Map.VICTORSPX_CAN_ID);
     m_victorSPX.configFactoryDefault();
     m_victorSPX.setNeutralMode(NeutralMode.Brake);
 
@@ -55,11 +63,11 @@ public class Shooter extends SubsystemBase {
       new DoubleSolenoid(
         30,
         PneumaticsModuleType.REVPH,
-        m_config.ElevationSolenoidForwardChannel,
-        m_config.ElevationSolenoidReverseChannel
+        Map.ELEVATION_SOLENOID_FORWARD_CHANNEL,
+        Map.ELEVATION_SOLENOID_REVERSE_CHANNEL
       );
 
-    m_noteDetector = new DigitalInput(m_config.NoteDetectorDIOChannel);
+    m_noteDetector = new DigitalInput(Map.NOTE_DETECTOR_DIO_CHANNEL);
   }
 
   //#region Control Methods
