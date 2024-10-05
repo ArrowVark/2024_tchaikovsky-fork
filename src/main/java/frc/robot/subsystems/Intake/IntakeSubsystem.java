@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.Intake;
 
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
@@ -10,58 +10,59 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.config.IntakeConfig;
+import frc.robot.subsystems.Intake.IIntakeIO.IntakeIOInputs;
+import frc.robot.subsystems.Intake.IIntakeIO.IntakeIOOutputs;
+
 import java.util.Map;
 import java.util.function.DoubleSupplier;
+
+import prime.control.PrimePIDConstants;
 import prime.movers.LazyCANSparkMax;
 
-public class Intake extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
 
-  private IntakeConfig m_config;
+  // private IntakeConfig m_config;
 
-  private DigitalInput m_topLimitSwitch;
-  private DigitalInput m_bottomLimitSwitch;
+  // private DigitalInput m_topLimitSwitch;
+  // private DigitalInput m_bottomLimitSwitch;
 
-  private LazyCANSparkMax m_rollers;
-  private LazyCANSparkMax m_angleLeft;
-  private LazyCANSparkMax m_angleRight;
+  // private LazyCANSparkMax m_rollers;
+  // private LazyCANSparkMax m_angleLeft;
+  // private LazyCANSparkMax m_angleRight;
 
-  private PIDController m_anglePid;
-  private double m_angleStartPoint;
-  public boolean m_angleToggledIn;
-  private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+  // private PIDController m_anglePid;
+  // private double m_angleStartPoint;
+  // public boolean m_angleToggledIn;
+  // private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+
+  private IIntakeIO intakeIO;
+  private IntakeIOInputs intakeInputs = new IntakeIOInputs();
+  private IntakeIOOutputs intakeOutputs = new IntakeIOOutputs();
 
   /**
    * Creates a new Intake subsystem
    * @param robotConfig
    */
-  public Intake(IntakeConfig config) {
-    m_config = config;
+
+   public static class Map {
+    public static final int ROLLER_CAN_ID = 16;
+    public static final int NEO_LEFT_CAN_ID = 15;
+    public static final int NEO_RIGHT_CAN_ID = 14;
+
+    public static final boolean ROLLERS_INVERTED = false;
+    public static final boolean NEO_LEFT_INVERTED = false;
+    public static final boolean NEO_RIGHT_INVERTED = true;
+
+    public static final PrimePIDConstants INTAKE_ANGLE_PID = new PrimePIDConstants(0.05, 0, 0);
+    public static final double POSITION_DELTA = 49;
+
+    public static final int TOP_LIMIT_SWITCH_CHANNEL = 4;
+    public static final int BOTTOM_LIMIT_SWITCH_CHANNEL = 5;
+   }
+
+  public IntakeSubsystem() {
     setName("Intake");
-    m_topLimitSwitch = new DigitalInput(m_config.TopLimitSwitchChannel);
-    m_bottomLimitSwitch = new DigitalInput(m_config.BottomLimitSwitchChannel);
-
-    m_rollers = new LazyCANSparkMax(m_config.RollersCanId, MotorType.kBrushless);
-    m_rollers.restoreFactoryDefaults();
-    m_rollers.setInverted(m_config.RollersInverted);
-    m_rollers.setSmartCurrentLimit(40, 50);
-    // m_rollers.setOpenLoopRampRate(0.250);
-
-    m_angleLeft = new LazyCANSparkMax(m_config.NeoLeftCanId, MotorType.kBrushless);
-    m_angleLeft.restoreFactoryDefaults();
-    m_angleLeft.setInverted(m_config.NeoLeftInverted);
-    m_angleLeft.setSmartCurrentLimit(40, 60);
-
-    m_angleRight = new LazyCANSparkMax(m_config.NeoRightCanId, MotorType.kBrushless);
-    m_angleRight.restoreFactoryDefaults();
-    m_angleRight.setInverted(m_config.NeoRightInverted);
-    m_angleRight.setSmartCurrentLimit(40, 60);
-
-    m_angleStartPoint = getPositionRight();
-    SmartDashboard.putNumber("Intake/AngleStartPoint", m_angleStartPoint);
-
-    m_anglePid = m_config.IntakeAnglePid.createPIDController(0.02);
-    m_anglePid.setSetpoint(m_angleStartPoint);
-    m_angleToggledIn = true;
+    
 
     // Set the default command for the subsystem so that it runs the PID loop
     setDefaultCommand(seekAngleSetpointCommand());
@@ -71,18 +72,20 @@ public class Intake extends SubsystemBase {
 
   /**
    * Gets the current position of the Intake Angle from the right NEO's encoder
-   * @return
+   * @return Double
    */
   public double getPositionRight() {
-    return m_angleRight.getEncoder().getPosition();
+    return intakeInputs.m_angleRightPosition;
+    //return m_angleRight.getEncoder().getPosition();
   }
 
   /**
    * Gets the current position of the Intake Angle from the left NEO's encoder
-   * @return
+   * @return Double
    */
   public double getPositionLeft() {
-    return m_angleLeft.getEncoder().getPosition();
+    return intakeInputs.m_angleLeftPosition;
+    //return m_angleLeft.getEncoder().getPosition();
   }
 
   /**
@@ -90,7 +93,8 @@ public class Intake extends SubsystemBase {
    * @param speed
    */
   public void runIntakeRollers(double speed) {
-    m_rollers.set(speed);
+    intakeOutputs.m_rollersSpeed = speed;
+    // .set(speed)
   }
 
   /**
@@ -98,8 +102,8 @@ public class Intake extends SubsystemBase {
    * @param speed
    */
   public void setAngleMotorSpeed(double speed) {
-    m_angleLeft.set(-speed);
-    m_angleRight.set(speed);
+    intakeOutputs.m_angleLeftSpeed = -speed;
+    intakeOutputs.m_angleRightSpeed = speed;
   }
 
   /**
@@ -130,6 +134,9 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    intakeIO.setOutputs(intakeOutputs);
+    intakeInputs = intakeIO.getInputs();
+
     // Level2 Logging
     SmartDashboard.putBoolean("Intake/ToggledIn", m_angleToggledIn);
 
@@ -146,7 +153,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Constantly seeks the angle setpoint for the arm. If interrupted, stops the arm motors
-   * @return
+   * @return none
    */
   public Command seekAngleSetpointCommand() {
     return this.run(() -> setIntakeRotation()).finallyDo(() -> stopArmMotorsCommand());
@@ -177,14 +184,14 @@ public class Intake extends SubsystemBase {
    * Sets the intake angle to loading position
    */
   public Command setIntakeInCommand() {
-    return Commands.runOnce(() -> m_angleToggledIn = true);
+    return Commands.runOnce(() -> intakeOutputs.m_angleToggledIn = true);
   }
 
   /**
    * Sets the intake angle setpoint to ground position
    */
   public Command setIntakeOutCommand() {
-    return Commands.runOnce(() -> m_angleToggledIn = false);
+    return Commands.runOnce(() -> intakeOutputs.m_angleToggledIn = false);
   }
 
   /**
@@ -192,7 +199,7 @@ public class Intake extends SubsystemBase {
    * @return
    */
   public Command toggleIntakeInAndOutCommand() {
-    return Commands.runOnce(() -> m_angleToggledIn = !m_angleToggleDebouncer.calculate(m_angleToggledIn));
+    return Commands.runOnce(() -> intakeOutputs.m_angleToggledIn = !m_angleToggleDebouncer.calculate(intakeOutputs.m_angleToggledIn));
   }
 
   /**
@@ -201,8 +208,12 @@ public class Intake extends SubsystemBase {
    */
   public Command stopArmMotorsCommand() {
     return Commands.runOnce(() -> {
-      m_angleLeft.stopMotor();
-      m_angleRight.stopMotor();
+      intakeOutputs.m_angleLeftSpeed = 0;
+      intakeOutputs.m_angleRightSpeed = 0;
+      intakeOutputs.m_stopAngleLeft = true;
+      intakeOutputs.m_stopAngleRight = true;
+      // m_angleLeft.stopMotor();
+      // m_angleRight.stopMotor();
     });
   }
 
@@ -216,19 +227,19 @@ public class Intake extends SubsystemBase {
     });
   }
 
-  public Map<String, Command> getNamedCommands() {
-    return Map.of(
-      "Set_Intake_Out",
-      setIntakeOutCommand(),
-      "Set_Intake_In",
-      setIntakeInCommand(),
-      "Start_Note_Intake",
-      setRollersSpeedCommand(() -> 1),
-      "Stop_Note_Intake",
-      stopRollersCommand(),
-      "Eject_Note",
-      ejectNoteCommand()
-    );
-  }
+  // public Map<String, Command> getNamedCommands() {
+  //   return Map.of(
+  //     "Set_Intake_Out",
+  //     setIntakeOutCommand(),
+  //     "Set_Intake_In",
+  //     setIntakeInCommand(),
+  //     "Start_Note_Intake",
+  //     setRollersSpeedCommand(() -> 1),
+  //     "Stop_Note_Intake",
+  //     stopRollersCommand(),
+  //     "Eject_Note",
+  //     ejectNoteCommand()
+  //   );
+  // }
   //#endregion
 }

@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.config.RobotConfig;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Intake.IntakeSubsystem;
+
 import java.util.Map;
 import prime.control.Controls;
 import prime.control.HolonomicControlStyle;
@@ -31,7 +33,7 @@ public class RobotContainer {
 
   public Drivetrain Drivetrain;
   public Shooter Shooter;
-  public Intake Intake;
+  public IntakeSubsystem Intake;
   public Climbers Climbers;
   public PwmLEDs LEDs;
   public Compressor Compressor;
@@ -52,7 +54,7 @@ public class RobotContainer {
       DriverDashboard = new DriverDashboard(m_config);
       Drivetrain = new Drivetrain(m_config, LEDs, DriverDashboard);
       Shooter = new Shooter(m_config.Shooter, LEDs);
-      Intake = new Intake(m_config.Intake);
+      Intake = new IntakeSubsystem(m_config.Intake);
       Climbers = new Climbers(m_config.Climbers, DriverDashboard);
       Compressor = new Compressor(m_config.PneumaticsModuleId, PneumaticsModuleType.REVPH);
       Compressor.enableDigital();

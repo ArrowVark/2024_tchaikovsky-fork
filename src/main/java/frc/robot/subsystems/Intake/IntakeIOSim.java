@@ -1,17 +1,17 @@
-package frc.robot.subsystems.Shooter;
+package frc.robot.subsystems.Intake;
 
-public class ShooterIOSim implements IShooterIO {
+public class IntakeIOSim implements IIntakeIO {
 
     @Override
-    public ShooterIOInputs getInputs() {
+    public IntakeIOInputs getInputs() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getInputs'");
     }
 
     @Override
-    public void setOutputs(ShooterIOOutputs outputs) {
+    public void setOutputs(IntakeIOOutputs outputs) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setOutputs'");
     }
-
+    
 }
