@@ -27,13 +27,13 @@ public class IntakeIOSim implements IIntakeIO {
     }
 
     @Override
-    public void runIntakeRollers(double speed) {
+    public void RunIntakeRollers(double speed) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'runIntakeRollers'");
     }
 
     @Override
-    public void setAngleMotorSpeed(double speed) {
+    public void SetAngleMotorSpeed(double speed) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setAngleMotorSpeed'");
     }

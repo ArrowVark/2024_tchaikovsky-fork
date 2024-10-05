@@ -27,31 +27,7 @@ public class IntakeIOReal implements IIntakeIO {
     private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
 
     public IntakeIOReal() {
-        m_topLimitSwitch = new DigitalInput(IntakeSubsystem.VMap.TOP_LIMIT_SWITCH_CHANNEL);
-        m_bottomLimitSwitch = new DigitalInput(IntakeSubsystem.VMap.BOTTOM_LIMIT_SWITCH_CHANNEL);
 
-        m_rollers = new LazyCANSparkMax(IntakeSubsystem.VMap.ROLLER_CAN_ID, MotorType.kBrushless);
-        m_rollers.restoreFactoryDefaults();
-        m_rollers.setInverted(IntakeSubsystem.VMap.ROLLERS_INVERTED);
-        m_rollers.setSmartCurrentLimit(40, 50);
-        // m_rollers.setOpenLoopRampRate(0.250);
-
-        m_angleLeft = new LazyCANSparkMax(IntakeSubsystem.VMap.NEO_LEFT_CAN_ID, MotorType.kBrushless);
-        m_angleLeft.restoreFactoryDefaults();
-        m_angleLeft.setInverted(IntakeSubsystem.VMap.NEO_LEFT_INVERTED);
-        m_angleLeft.setSmartCurrentLimit(40, 60);
-
-        m_angleRight = new LazyCANSparkMax(IntakeSubsystem.VMap.NEO_RIGHT_CAN_ID, MotorType.kBrushless);
-        m_angleRight.restoreFactoryDefaults();
-        m_angleRight.setInverted(IntakeSubsystem.VMap.NEO_RIGHT_INVERTED);
-        m_angleRight.setSmartCurrentLimit(40, 60);
-
-        intakeOutputs.m_angleStartPoint = intakeInputs.m_angleRightPosition;
-        SmartDashboard.putNumber("Intake/AngleStartPoint", intakeOutputs.m_angleStartPoint);
-
-        m_anglePid = IntakeSubsystem.VMap.INTAKE_ANGLE_PID.createPIDController(0.02);
-        m_anglePid.setSetpoint(intakeOutputs.m_angleStartPoint);
-        intakeOutputs.m_angleToggledIn = true;
 
     }
 
@@ -91,12 +67,12 @@ public class IntakeIOReal implements IIntakeIO {
     }
 
     @Override
-    public void runIntakeRollers(double speed) {
+    public void RunIntakeRollers(double speed) {
         m_rollers.set(speed);
     }
 
     @Override
-    public void setAngleMotorSpeed(double speed) {
+    public void SetAngleMotorSpeed(double speed) {
         m_angleLeft.set(-speed);
         m_angleRight.set(speed);
     }

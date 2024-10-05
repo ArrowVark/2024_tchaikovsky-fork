@@ -42,13 +42,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private IShooterIO shooterIO;
     private ShooterIOInputs shooterInputs = new ShooterIOInputs();
     private ShooterIOOutputs shooterOutputs = new ShooterIOOutputs();
-
-  // private PwmLEDs m_leds;
-  // private TalonFX m_talonFX;
-  // private VictorSPX m_victorSPX;
-  // private DoubleSolenoid m_elevationSolenoid;
-  // private DigitalInput m_noteDetector;
-
   // #endregion
 
   /**
@@ -72,8 +65,6 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    // shooterOutputs.m_talonFXSpeed = speed;
-    // shooterOutputs.m_victorSPXSpeed = speed * 3;
     shooterIO.RunShooter(speed);
   }
 

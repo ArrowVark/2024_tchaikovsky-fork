@@ -36,18 +36,6 @@ public class IntakeSubsystem extends SubsystemBase {
     public static final int BOTTOM_LIMIT_SWITCH_CHANNEL = 5;
    }
 
-  // private IntakeConfig m_config;
-
-  // private DigitalInput m_topLimitSwitch;
-  // private DigitalInput m_bottomLimitSwitch;
-
-  // private LazyCANSparkMax m_rollers;
-  // private LazyCANSparkMax m_angleLeft;
-  // private LazyCANSparkMax m_angleRight;
-
-  // private PIDController m_anglePid;
-  // private double m_angleStartPoint;
-  // public boolean m_angleToggledIn;
   private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
 
   private IIntakeIO intakeIO;
@@ -97,9 +85,7 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runIntakeRollers(double speed) {
-    //intakeOutputs.m_rollersSpeed = speed;
-    intakeIO.runIntakeRollers(speed);
-    // .set(speed)
+    intakeIO.RunIntakeRollers(speed);
   }
 
   /**
@@ -107,9 +93,7 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param speed
    */
   public void setAngleMotorSpeed(double speed) {
-    // intakeOutputs.m_angleLeftSpeed = -speed;
-    // intakeOutputs.m_angleRightSpeed = speed;
-    intakeIO.setAngleMotorSpeed(speed);
+    intakeIO.SetAngleMotorSpeed(speed);
   }
 
   /**
@@ -214,10 +198,6 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public Command stopArmMotorsCommand() {
     return Commands.runOnce(() -> {
-      // intakeOutputs.m_angleLeftSpeed = 0;
-      // intakeOutputs.m_angleRightSpeed = 0;
-      // intakeOutputs.m_stopAngleLeft = true;
-      // intakeOutputs.m_stopAngleRight = true;
       intakeIO.StopMotors();
     });
   }
@@ -228,8 +208,6 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public Command stopRollersCommand() {
     return Commands.runOnce(() -> {
-      // intakeOutputs.m_rollersSpeed = 0;
-      // intakeOutputs.m_stopRollers = true;
       intakeIO.StopRollers();
     });
   }

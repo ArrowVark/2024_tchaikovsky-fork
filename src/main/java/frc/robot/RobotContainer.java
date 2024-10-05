@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.config.RobotConfig;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Climb.ClimbSubsystem;
 import frc.robot.subsystems.Intake.IntakeSubsystem;
 import frc.robot.subsystems.Shooter.ShooterSubsystem;
 
@@ -35,7 +36,7 @@ public class RobotContainer {
   public Drivetrain Drivetrain;
   public ShooterSubsystem Shooter;
   public IntakeSubsystem Intake;
-  public Climbers Climbers;
+  public ClimbSubsystem Climbers;
   public PwmLEDs LEDs;
   public Compressor Compressor;
   public DriverDashboard DriverDashboard;
@@ -56,7 +57,7 @@ public class RobotContainer {
       Drivetrain = new Drivetrain(m_config, LEDs, DriverDashboard);
       Shooter = new ShooterSubsystem(true, LEDs);
       Intake = new IntakeSubsystem(true);
-      Climbers = new Climbers(m_config.Climbers, DriverDashboard);
+      Climbers = new ClimbSubsystem(true, DriverDashboard);
       Compressor = new Compressor(m_config.PneumaticsModuleId, PneumaticsModuleType.REVPH);
       Compressor.enableDigital();
 
