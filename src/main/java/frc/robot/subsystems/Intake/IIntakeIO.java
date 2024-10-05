@@ -16,17 +16,19 @@ public interface IIntakeIO {
         public double m_angleRightState;
         public double m_rollersState;
 
+        public double m_anglePidOutput;
+
     }
 
     //@AutoLog
     public static class IntakeIOOutputs { 
         
-        public boolean m_angleToggledIn;
+        public boolean m_angleToggledIn = false;
         public double m_angleStartPoint;
 
-        public double m_rollersSpeed;
-        public double m_angleLeftSpeed;
-        public double m_angleRightSpeed;
+        public double m_rollersSpeed = 0;
+        public double m_angleLeftSpeed = 0;
+        public double m_angleRightSpeed = 0;
 
         public boolean m_stopRollers = false;
         public boolean m_stopAngleLeft = false;

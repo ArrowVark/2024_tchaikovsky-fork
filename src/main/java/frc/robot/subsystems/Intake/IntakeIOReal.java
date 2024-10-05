@@ -69,6 +69,8 @@ public class IntakeIOReal implements IIntakeIO {
        inputs.m_topLimitSwitchState = m_topLimitSwitch.get();
        inputs.m_bottomLimitSwitchState = m_bottomLimitSwitch.get();
 
+       inputs.m_anglePidOutput = m_anglePid.calculate(inputs.m_angleRightPosition, intakeOutputs.m_angleToggledIn ? intakeOutputs.m_angleStartPoint : (intakeOutputs.m_angleStartPoint - IntakeSubsystem.Map.POSITION_DELTA));
+
        return inputs;
     }
 

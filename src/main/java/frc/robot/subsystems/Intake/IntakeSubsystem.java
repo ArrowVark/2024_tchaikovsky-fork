@@ -33,7 +33,7 @@ public class IntakeSubsystem extends SubsystemBase {
   // private PIDController m_anglePid;
   // private double m_angleStartPoint;
   // public boolean m_angleToggledIn;
-  // private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+  private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
 
   private IIntakeIO intakeIO;
   private IntakeIOInputs intakeInputs = new IntakeIOInputs();
@@ -111,11 +111,11 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param positionSetpoint
    */
   public void setIntakeRotation() {
-    var currentPosition = getPositionRight();
+    var currentPosition = intakeInputs.m_angleRightPosition;
     var setpoint = intakeOutputs.m_angleToggledIn ? intakeOutputs.m_angleStartPoint : (intakeOutputs.m_angleStartPoint - Map.POSITION_DELTA);
     SmartDashboard.putNumber("Intake/AngleSetpoint", setpoint);
 
-    var pidOutput = m_anglePid.calculate(currentPosition, setpoint);
+    var pidOutput = intakeInputs.m_anglePidOutput;
     SmartDashboard.putNumber("Intake/AnglePIDOutput", pidOutput);
 
     // artificial limits
