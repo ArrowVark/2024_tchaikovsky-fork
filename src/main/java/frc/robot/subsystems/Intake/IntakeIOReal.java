@@ -77,30 +77,28 @@ public class IntakeIOReal implements IIntakeIO {
     @Override
     public void setOutputs(IntakeIOOutputs outputs) {
         var inputs = getInputs();
+    }
 
+    @Override
+    public void StopMotors() {
+        m_angleLeft.stopMotor();
+        m_angleRight.stopMotor();
+    }
 
-        // Controls the speed of the motors in the Intake
+    @Override
+    public void StopRollers() {
+        m_rollers.stopMotor();
+    }
 
-        if (outputs.m_stopAngleLeft) {
-            m_angleLeft.stopMotor();
-            intakeOutputs.m_stopAngleLeft = false;
-        } else {
-            m_angleLeft.set(outputs.m_angleLeftSpeed);
-        }
+    @Override
+    public void runIntakeRollers(double speed) {
+        m_rollers.set(speed);
+    }
 
-        if (outputs.m_stopAngleRight) {
-            m_angleRight.stopMotor();
-            intakeOutputs.m_stopAngleRight = false;
-        } else {
-            m_angleRight.set(outputs.m_angleRightSpeed);
-        }
-
-        if (outputs.m_stopRollers) {
-            m_rollers.stopMotor();
-            intakeOutputs.m_stopRollers = false;
-        } else {
-            m_rollers.set(outputs.m_rollersSpeed);
-        }
+    @Override
+    public void setAngleMotorSpeed(double speed) {
+        m_angleLeft.set(-speed);
+        m_angleRight.set(speed);
     }
     
 }

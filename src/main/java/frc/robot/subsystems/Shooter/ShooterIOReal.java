@@ -24,6 +24,10 @@ public class ShooterIOReal implements IShooterIO{
     private DoubleSolenoid m_elevationSolenoid;
     private DigitalInput m_noteDetector;
 
+    private IShooterIO shooterIO;
+    private ShooterIOInputs shooterInputs = new ShooterIOInputs();
+    private ShooterIOOutputs shooterOutputs = new ShooterIOOutputs();
+
     public ShooterIOReal(PwmLEDs leds) {
         m_leds = leds;
 
@@ -67,42 +71,59 @@ public class ShooterIOReal implements IShooterIO{
     public void setOutputs(ShooterIOOutputs outputs) {
         var inputs = new ShooterIOInputs();
 
-        if (outputs.m_stopTalonFX) {
-            m_talonFX.stopMotor();
-            outputs.m_stopTalonFX = false;
-        } else {
-            m_talonFX.set(outputs.m_talonFXSpeed);
-        }
+        // if (outputs.m_stopTalonFX) {
+        //     m_talonFX.stopMotor();
+        //     outputs.m_stopTalonFX = false;
+        // } else {
+        //     m_talonFX.set(outputs.m_talonFXSpeed);
+        // }
 
-        if (outputs.m_stopVictorSPX) {
-            m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
-            outputs.m_stopVictorSPX = false;
-        } else {
-            m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.m_victorSPXSpeed);
-        }
+        // if (outputs.m_stopVictorSPX) {
+        //     m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
+        //     outputs.m_stopVictorSPX = false;
+        // } else {
+        //     m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.m_victorSPXSpeed);
+        // }
 
-        //#region LED Logic
+        //  m_elevationSolenoid.set(outputs.m_elevationSolenoidValue);
 
-        // I don't believe these would work; testing need.
-        if ((outputs.m_stopTalonFX && outputs.m_stopVictorSPX) || inputs.m_elevationSolenoidState == Value.kReverse) {
-            m_leds.restorePersistentStripPattern();
-        }
+    }
 
-        if (inputs.m_elevationSolenoidState == Value.kForward) {
-            m_leds.setStripTemporaryPattern(new SolidPattern(Color.WHITE));
-        }
+    @Override
+    public void ResetLEDs() {
+        m_leds.restorePersistentStripPattern();
+    }
 
-        if (outputs.m_playNoteDetectedLedPattern) {
-            m_leds.setStripTemporaryPattern(new BlinkPattern(prime.control.LEDs.Color.ORANGE, 0.2));
-        }
+    @Override
+    public void RunNoteDetectedLEDPattern() {
+        m_leds.setStripTemporaryPattern(new BlinkPattern(prime.control.LEDs.Color.ORANGE, 0.2));
+    }
 
-        if (outputs.m_startShootingNoteLedPattern) {
-            m_leds.setStripTemporaryPattern(new ChasePattern(Color.GREEN, 0.25, !inputs.m_noteDetectorState));
-        }
-        //#endregion
+    @Override
+    public void RunShootingNoteLEDPattern() {
+        m_leds.setStripTemporaryPattern(new ChasePattern(Color.GREEN, 0.25, !shooterInputs.m_noteDetectorState));
+    }
 
-         m_elevationSolenoid.set(outputs.m_elevationSolenoidValue);
+    @Override
+    public void StopMotors() {
+        m_talonFX.stopMotor();
+        m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
+    }
 
+    @Override
+    public void RunShooter(double speed) {
+        m_talonFX.set(speed);
+        m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed * 3);
+    }
+
+    @Override
+    public void RunGreenWheel(double speed) {
+        m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed);
+    }
+
+    @Override
+    public void SetElevator(Value value) {
+        m_elevationSolenoid.set(value);
     }
 
 }

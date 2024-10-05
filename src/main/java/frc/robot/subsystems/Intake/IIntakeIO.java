@@ -26,17 +26,25 @@ public interface IIntakeIO {
         public boolean m_angleToggledIn = false;
         public double m_angleStartPoint;
 
-        public double m_rollersSpeed = 0;
-        public double m_angleLeftSpeed = 0;
-        public double m_angleRightSpeed = 0;
+        // public double m_rollersSpeed = 0;
+        // public double m_angleLeftSpeed = 0;
+        // public double m_angleRightSpeed = 0;
 
-        public boolean m_stopRollers = false;
-        public boolean m_stopAngleLeft = false;
-        public boolean m_stopAngleRight = false;
+        // public boolean m_stopRollers = false;
+        // public boolean m_stopAngleLeft = false;
+        // public boolean m_stopAngleRight = false;
 
     }
 
     public IntakeIOInputs getInputs();
 
     public void setOutputs(IntakeIOOutputs outputs);
+
+    public void StopMotors();
+
+    public void StopRollers();
+
+    public void runIntakeRollers(double speed);
+
+    public void setAngleMotorSpeed(double speed);
 }

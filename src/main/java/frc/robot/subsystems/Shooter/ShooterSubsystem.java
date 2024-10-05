@@ -72,24 +72,20 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    shooterOutputs.m_talonFXSpeed = speed;
-    shooterOutputs.m_victorSPXSpeed = speed * 3;
+    // shooterOutputs.m_talonFXSpeed = speed;
+    // shooterOutputs.m_victorSPXSpeed = speed * 3;
+    shooterIO.RunShooter(speed);
   }
 
   public void runGreenWheel(double speed) {
-    shooterOutputs.m_victorSPXSpeed = speed;
+    shooterIO.RunGreenWheel(speed);
   }
 
   /**
    * Stops the shooter motors
    */
   public void stopMotors() {
-    shooterOutputs.m_talonFXSpeed = 0;
-    shooterOutputs.m_victorSPXSpeed = 0;
-
-    shooterOutputs.m_stopTalonFX = true;
-    shooterOutputs.m_stopVictorSPX = true;
-    
+    shooterIO.StopMotors();
   }
 
   /**
@@ -101,7 +97,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void setElevator(Value value) {
-    shooterOutputs.m_elevationSolenoidValue = value;
+    shooterIO.SetElevator(value);
   }
 
   public void setElevatorUp() {
@@ -121,9 +117,9 @@ public class ShooterSubsystem extends SubsystemBase {
     var newNoteDetectedValue = isNoteLoaded();
     if (newNoteDetectedValue != m_lastNoteDetectedValue) {
       if (newNoteDetectedValue && !m_lastNoteDetectedValue) {
-        shooterOutputs.m_playNoteDetectedLedPattern = true;
+        shooterIO.RunNoteDetectedLEDPattern();
       } else {
-        shooterOutputs.m_playNoteDetectedLedPattern = false;
+        shooterIO.ResetLEDs();
       }
 
       // Save the new value
@@ -162,7 +158,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command startShootingNoteCommand() {
     return Commands.runOnce(() -> {
       runShooter(1);
-      shooterOutputs.m_startShootingNoteLedPattern = true;
+      shooterIO.RunShootingNoteLEDPattern();
         });
   }
 

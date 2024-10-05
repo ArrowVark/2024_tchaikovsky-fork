@@ -97,7 +97,8 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runIntakeRollers(double speed) {
-    intakeOutputs.m_rollersSpeed = speed;
+    //intakeOutputs.m_rollersSpeed = speed;
+    intakeIO.runIntakeRollers(speed);
     // .set(speed)
   }
 
@@ -106,8 +107,9 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param speed
    */
   public void setAngleMotorSpeed(double speed) {
-    intakeOutputs.m_angleLeftSpeed = -speed;
-    intakeOutputs.m_angleRightSpeed = speed;
+    // intakeOutputs.m_angleLeftSpeed = -speed;
+    // intakeOutputs.m_angleRightSpeed = speed;
+    intakeIO.setAngleMotorSpeed(speed);
   }
 
   /**
@@ -212,12 +214,11 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public Command stopArmMotorsCommand() {
     return Commands.runOnce(() -> {
-      intakeOutputs.m_angleLeftSpeed = 0;
-      intakeOutputs.m_angleRightSpeed = 0;
-      intakeOutputs.m_stopAngleLeft = true;
-      intakeOutputs.m_stopAngleRight = true;
-      // m_angleLeft.stopMotor();
-      // m_angleRight.stopMotor();
+      // intakeOutputs.m_angleLeftSpeed = 0;
+      // intakeOutputs.m_angleRightSpeed = 0;
+      // intakeOutputs.m_stopAngleLeft = true;
+      // intakeOutputs.m_stopAngleRight = true;
+      intakeIO.StopMotors();
     });
   }
 
@@ -227,8 +228,9 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public Command stopRollersCommand() {
     return Commands.runOnce(() -> {
-      intakeOutputs.m_rollersSpeed = 0;
-      intakeOutputs.m_stopRollers = true;
+      // intakeOutputs.m_rollersSpeed = 0;
+      // intakeOutputs.m_stopRollers = true;
+      intakeIO.StopRollers();
     });
   }
 
