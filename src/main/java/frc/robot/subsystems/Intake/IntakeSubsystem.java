@@ -112,17 +112,17 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void setIntakeRotation() {
     var currentPosition = getPositionRight();
-    var setpoint = m_angleToggledIn ? m_angleStartPoint : (m_angleStartPoint - m_config.PositionDelta);
+    var setpoint = intakeOutputs.m_angleToggledIn ? intakeOutputs.m_angleStartPoint : (intakeOutputs.m_angleStartPoint - Map.POSITION_DELTA);
     SmartDashboard.putNumber("Intake/AngleSetpoint", setpoint);
 
     var pidOutput = m_anglePid.calculate(currentPosition, setpoint);
     SmartDashboard.putNumber("Intake/AnglePIDOutput", pidOutput);
 
     // artificial limits
-    if (currentPosition < m_angleStartPoint && pidOutput > 0 && !m_topLimitSwitch.get()) {
+    if (currentPosition < intakeOutputs.m_angleStartPoint && pidOutput > 0 && !intakeInputs.m_topLimitSwitchState) {
       setAngleMotorSpeed(MathUtil.clamp(pidOutput, 0, 1));
     } else if (
-      currentPosition > (m_angleStartPoint - m_config.PositionDelta) && pidOutput < 0 && !m_bottomLimitSwitch.get()
+      currentPosition > (intakeOutputs.m_angleStartPoint - Map.POSITION_DELTA) && pidOutput < 0 && !intakeInputs.m_bottomLimitSwitchState
     ) {
       setAngleMotorSpeed(MathUtil.clamp(pidOutput, -1, 0));
     } else {
@@ -138,15 +138,15 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeInputs = intakeIO.getInputs();
 
     // Level2 Logging
-    SmartDashboard.putBoolean("Intake/ToggledIn", m_angleToggledIn);
+    SmartDashboard.putBoolean("Intake/ToggledIn", intakeOutputs.m_angleToggledIn);
 
     SmartDashboard.putNumber("Intake/ArmPositionRight", getPositionRight());
     SmartDashboard.putNumber("Intake/ArmPositionLeft", getPositionLeft());
 
-    SmartDashboard.putNumber("Intake/RightMotorOutput", m_angleRight.get());
-    SmartDashboard.putNumber("Intake/LeftMotorOutput", m_angleLeft.get());
+    SmartDashboard.putNumber("Intake/RightMotorOutput", intakeInputs.m_angleRightState);
+    SmartDashboard.putNumber("Intake/LeftMotorOutput", intakeInputs.m_angleLeftState);
 
-    SmartDashboard.putNumber("Intake/RollersOutput", m_rollers.get());
+    SmartDashboard.putNumber("Intake/RollersOutput", intakeInputs.m_rollersState);
   }
 
   //#region Commands
@@ -223,7 +223,8 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public Command stopRollersCommand() {
     return Commands.runOnce(() -> {
-      m_rollers.stopMotor();
+      intakeOutputs.m_rollersSpeed = 0;
+      intakeOutputs.m_stopRollers = true;
     });
   }
 

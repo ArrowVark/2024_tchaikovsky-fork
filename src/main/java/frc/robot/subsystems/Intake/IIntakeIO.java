@@ -1,22 +1,24 @@
 package frc.robot.subsystems.Intake;
 
-import org.littletonrobotics.junction.AutoLog;
-
-import edu.wpi.first.wpilibj.DigitalInput;
+//import org.littletonrobotics.junction.AutoLog;
 
 public interface IIntakeIO {
-    @AutoLog
+    //@AutoLog
     public static class IntakeIOInputs {
 
-        public DigitalInput m_topLimitSwitch;
-        public DigitalInput m_bottomLimitSwitch;
+        public boolean m_topLimitSwitchState;
+        public boolean m_bottomLimitSwitchState;
 
         public double m_angleLeftPosition;
         public double m_angleRightPosition;
 
+        public double m_angleLeftState;
+        public double m_angleRightState;
+        public double m_rollersState;
+
     }
 
-    @AutoLog
+    //@AutoLog
     public static class IntakeIOOutputs { 
         
         public boolean m_angleToggledIn;
