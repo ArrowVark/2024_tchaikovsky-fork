@@ -16,6 +16,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.config.ShooterConfig;
 import frc.robot.subsystems.PwmLEDs;
+import frc.robot.subsystems.Intake.IIntakeIO;
+import frc.robot.subsystems.Intake.IIntakeIO.IntakeIOInputs;
+import frc.robot.subsystems.Intake.IIntakeIO.IntakeIOOutputs;
+import frc.robot.subsystems.Shooter.IShooterIO.ShooterIOInputs;
+import frc.robot.subsystems.Shooter.IShooterIO.ShooterIOOutputs;
 
 import java.util.Map;
 import prime.control.LEDs.Color;
@@ -34,13 +39,15 @@ public class ShooterSubsystem extends SubsystemBase {
       public static final int ELEVATION_SOLENOID_REVERSE_CHANNEL = 7;
     }
 
-  private ShooterConfig m_config;
+    private IShooterIO shooterIO;
+    private ShooterIOInputs shooterInputs = new ShooterIOInputs();
+    private ShooterIOOutputs shooterOutputs = new ShooterIOOutputs();
 
-  private PwmLEDs m_leds;
-  private TalonFX m_talonFX;
-  private VictorSPX m_victorSPX;
-  private DoubleSolenoid m_elevationSolenoid;
-  private DigitalInput m_noteDetector;
+  // private PwmLEDs m_leds;
+  // private TalonFX m_talonFX;
+  // private VictorSPX m_victorSPX;
+  // private DoubleSolenoid m_elevationSolenoid;
+  // private DigitalInput m_noteDetector;
 
   // #endregion
 
@@ -48,28 +55,9 @@ public class ShooterSubsystem extends SubsystemBase {
    * Creates a new Shooter with a given configuration
    * @param config
    */
-  public ShooterSubsystem(PwmLEDs leds) {
-    m_leds = leds;
+  public ShooterSubsystem() {
     setName("Shooter");
 
-    m_talonFX = new TalonFX(VMap.TALONFX_CAN_ID);
-    m_talonFX.getConfigurator().apply(new TalonFXConfiguration());
-    m_talonFX.setInverted(true);
-    m_talonFX.setNeutralMode(NeutralModeValue.Brake);
-
-    m_victorSPX = new VictorSPX(VMap.VICTORSPX_CAN_ID);
-    m_victorSPX.configFactoryDefault();
-    m_victorSPX.setNeutralMode(NeutralMode.Brake);
-
-    m_elevationSolenoid =
-      new DoubleSolenoid(
-        30,
-        PneumaticsModuleType.REVPH,
-        VMap.ELEVATION_SOLENOID_FORWARD_CHANNEL,
-        VMap.ELEVATION_SOLENOID_REVERSE_CHANNEL
-      );
-
-    m_noteDetector = new DigitalInput(VMap.NOTE_DETECTOR_DIO_CHANNEL);
   }
 
   //#region Control Methods
@@ -79,21 +67,24 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    m_talonFX.set(speed);
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed * 3);
+    shooterOutputs.m_talonFXSpeed = speed;
+    shooterOutputs.m_victorSPXSpeed = speed * 3;
   }
 
   public void runGreenWheel(double speed) {
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed);
+    shooterOutputs.m_victorSPXSpeed = speed;
   }
 
   /**
    * Stops the shooter motors
    */
   public void stopMotors() {
-    m_talonFX.stopMotor();
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
-    m_leds.restorePersistentStripPattern();
+    shooterOutputs.m_talonFXSpeed = 0;
+    shooterOutputs.m_victorSPXSpeed = 0;
+
+    shooterOutputs.m_stopTalonFX = true;
+    shooterOutputs.m_stopVictorSPX = true;
+    
   }
 
   /**
@@ -101,21 +92,19 @@ public class ShooterSubsystem extends SubsystemBase {
    * @return
    */
   public boolean isNoteLoaded() {
-    return !m_noteDetector.get();
+    return !shooterInputs.m_noteDetectorState;
   }
 
   public void setElevator(Value value) {
-    m_elevationSolenoid.set(value);
+    shooterOutputs.m_elevationSolenoidValue = value;
   }
 
   public void setElevatorUp() {
     setElevator(Value.kForward);
-    m_leds.setStripTemporaryPattern(new SolidPattern(Color.WHITE));
   }
 
   public void setElevatorDown() {
     setElevator(Value.kReverse);
-    m_leds.restorePersistentStripPattern();
   }
 
   //#endregion
@@ -127,9 +116,9 @@ public class ShooterSubsystem extends SubsystemBase {
     var newNoteDetectedValue = isNoteLoaded();
     if (newNoteDetectedValue != m_lastNoteDetectedValue) {
       if (newNoteDetectedValue && !m_lastNoteDetectedValue) {
-        m_leds.setStripTemporaryPattern(new BlinkPattern(prime.control.LEDs.Color.ORANGE, 0.2));
+        shooterOutputs.m_playNoteDetectedLedPattern = true;
       } else {
-        m_leds.restorePersistentStripPattern();
+        shooterOutputs.m_playNoteDetectedLedPattern = false;
       }
 
       // Save the new value
@@ -137,9 +126,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // Level2 Logging
-    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", m_talonFX.get());
-    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", m_talonFX.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter/GuideMotorOutput", m_victorSPX.getMotorOutputPercent());
+    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", shooterInputs.m_talonFXState);
+    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", shooterInputs.m_talonFXVelocity);
+    SmartDashboard.putNumber("Shooter/GuideMotorOutput", shooterInputs.m_talonFXVelocity);
     SmartDashboard.putBoolean("Shooter/NoteDetected", newNoteDetectedValue);
   }
 
@@ -168,8 +157,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command startShootingNoteCommand() {
     return Commands.runOnce(() -> {
       runShooter(1);
-      m_leds.setStripTemporaryPattern(new ChasePattern(Color.GREEN, 0.25, isNoteLoaded()));
-    });
+      shooterOutputs.m_startShootingNoteLedPattern = true;
+        });
   }
 
   /**
@@ -194,7 +183,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command toggleElevationCommand() {
     return Commands.runOnce(() -> {
-      if (m_elevationSolenoid.get() == Value.kForward) setElevatorDown(); else setElevatorUp();
+      if (shooterInputs.m_elevationSolenoidState == Value.kForward) setElevatorDown(); else setElevatorUp();
     });
   }
 
