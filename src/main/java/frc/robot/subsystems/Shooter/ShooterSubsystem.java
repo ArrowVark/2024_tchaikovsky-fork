@@ -55,9 +55,14 @@ public class ShooterSubsystem extends SubsystemBase {
    * Creates a new Shooter with a given configuration
    * @param config
    */
-  public ShooterSubsystem() {
+  public ShooterSubsystem(boolean isReal, PwmLEDs Leds) {
     setName("Shooter");
 
+    if (isReal) {
+      shooterIO = new ShooterIOReal(Leds);
+    } else {
+      shooterIO = new ShooterIOSim();
+    }
   }
 
   //#region Control Methods

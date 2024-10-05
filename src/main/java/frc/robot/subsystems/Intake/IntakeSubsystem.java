@@ -61,9 +61,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
    
 
-  public IntakeSubsystem() {
+  public IntakeSubsystem(boolean isReal) {
     setName("Intake");
-
+    if (isReal) {
+      intakeIO = new IntakeIOReal();
+    } else {
+      intakeIO = new IntakeIOSim();
+    }
     // Set the default command for the subsystem so that it runs the PID loop
     setDefaultCommand(seekAngleSetpointCommand());
   }

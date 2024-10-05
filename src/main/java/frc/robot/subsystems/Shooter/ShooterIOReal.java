@@ -82,6 +82,8 @@ public class ShooterIOReal implements IShooterIO{
         }
 
         //#region LED Logic
+
+        // I don't believe these would work; testing need.
         if ((outputs.m_stopTalonFX && outputs.m_stopVictorSPX) || inputs.m_elevationSolenoidState == Value.kReverse) {
             m_leds.restorePersistentStripPattern();
         }
