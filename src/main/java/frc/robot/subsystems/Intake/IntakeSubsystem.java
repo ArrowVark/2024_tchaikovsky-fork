@@ -20,6 +20,21 @@ import prime.control.PrimePIDConstants;
 import prime.movers.LazyCANSparkMax;
 
 public class IntakeSubsystem extends SubsystemBase {
+  public class VMap {
+    public static final int ROLLER_CAN_ID = 16;
+    public static final int NEO_LEFT_CAN_ID = 15;
+    public static final int NEO_RIGHT_CAN_ID = 14;
+
+    public static final boolean ROLLERS_INVERTED = false;
+    public static final boolean NEO_LEFT_INVERTED = false;
+    public static final boolean NEO_RIGHT_INVERTED = true;
+
+    public static final PrimePIDConstants INTAKE_ANGLE_PID = new PrimePIDConstants(0.05, 0, 0);
+    public static final double POSITION_DELTA = 49;
+
+    public static final int TOP_LIMIT_SWITCH_CHANNEL = 4;
+    public static final int BOTTOM_LIMIT_SWITCH_CHANNEL = 5;
+   }
 
   // private IntakeConfig m_config;
 
@@ -44,25 +59,10 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param robotConfig
    */
 
-   public static class Map {
-    public static final int ROLLER_CAN_ID = 16;
-    public static final int NEO_LEFT_CAN_ID = 15;
-    public static final int NEO_RIGHT_CAN_ID = 14;
-
-    public static final boolean ROLLERS_INVERTED = false;
-    public static final boolean NEO_LEFT_INVERTED = false;
-    public static final boolean NEO_RIGHT_INVERTED = true;
-
-    public static final PrimePIDConstants INTAKE_ANGLE_PID = new PrimePIDConstants(0.05, 0, 0);
-    public static final double POSITION_DELTA = 49;
-
-    public static final int TOP_LIMIT_SWITCH_CHANNEL = 4;
-    public static final int BOTTOM_LIMIT_SWITCH_CHANNEL = 5;
-   }
+   
 
   public IntakeSubsystem() {
     setName("Intake");
-    
 
     // Set the default command for the subsystem so that it runs the PID loop
     setDefaultCommand(seekAngleSetpointCommand());
@@ -112,7 +112,7 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void setIntakeRotation() {
     var currentPosition = intakeInputs.m_angleRightPosition;
-    var setpoint = intakeOutputs.m_angleToggledIn ? intakeOutputs.m_angleStartPoint : (intakeOutputs.m_angleStartPoint - Map.POSITION_DELTA);
+    var setpoint = intakeOutputs.m_angleToggledIn ? intakeOutputs.m_angleStartPoint : (intakeOutputs.m_angleStartPoint - VMap.POSITION_DELTA);
     SmartDashboard.putNumber("Intake/AngleSetpoint", setpoint);
 
     var pidOutput = intakeInputs.m_anglePidOutput;
@@ -122,7 +122,7 @@ public class IntakeSubsystem extends SubsystemBase {
     if (currentPosition < intakeOutputs.m_angleStartPoint && pidOutput > 0 && !intakeInputs.m_topLimitSwitchState) {
       setAngleMotorSpeed(MathUtil.clamp(pidOutput, 0, 1));
     } else if (
-      currentPosition > (intakeOutputs.m_angleStartPoint - Map.POSITION_DELTA) && pidOutput < 0 && !intakeInputs.m_bottomLimitSwitchState
+      currentPosition > (intakeOutputs.m_angleStartPoint - VMap.POSITION_DELTA) && pidOutput < 0 && !intakeInputs.m_bottomLimitSwitchState
     ) {
       setAngleMotorSpeed(MathUtil.clamp(pidOutput, -1, 0));
     } else {
@@ -228,19 +228,19 @@ public class IntakeSubsystem extends SubsystemBase {
     });
   }
 
-  // public Map<String, Command> getNamedCommands() {
-  //   return Map.of(
-  //     "Set_Intake_Out",
-  //     setIntakeOutCommand(),
-  //     "Set_Intake_In",
-  //     setIntakeInCommand(),
-  //     "Start_Note_Intake",
-  //     setRollersSpeedCommand(() -> 1),
-  //     "Stop_Note_Intake",
-  //     stopRollersCommand(),
-  //     "Eject_Note",
-  //     ejectNoteCommand()
-  //   );
-  // }
+  public Map<String, Command> getNamedCommands() {
+    return Map.of(
+      "Set_Intake_Out",
+      setIntakeOutCommand(),
+      "Set_Intake_In",
+      setIntakeInCommand(),
+      "Start_Note_Intake",
+      setRollersSpeedCommand(() -> 1),
+      "Stop_Note_Intake",
+      stopRollersCommand(),
+      "Eject_Note",
+      ejectNoteCommand()
+    );
+  }
   //#endregion
 }

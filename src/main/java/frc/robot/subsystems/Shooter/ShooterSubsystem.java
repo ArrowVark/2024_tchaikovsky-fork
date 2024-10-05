@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.config.ShooterConfig;
+import frc.robot.subsystems.PwmLEDs;
+
 import java.util.Map;
 import prime.control.LEDs.Color;
 import prime.control.LEDs.Patterns.BlinkPattern;
@@ -22,6 +24,15 @@ import prime.control.LEDs.Patterns.ChasePattern;
 import prime.control.LEDs.Patterns.SolidPattern;
 
 public class ShooterSubsystem extends SubsystemBase {
+    public class VMap {
+      public static final int TALONFX_CAN_ID = 20;
+      public static final int VICTORSPX_CAN_ID = 19;
+      public static final boolean TALONFX_INVERTED = false;
+      public static final boolean VICTORSPX_INVERTED = false;
+      public static final int NOTE_DETECTOR_DIO_CHANNEL = 7;
+      public static final int ELEVATION_SOLENOID_FORWARD_CHANNEL = 6;
+      public static final int ELEVATION_SOLENOID_REVERSE_CHANNEL = 7;
+    }
 
   private ShooterConfig m_config;
 
@@ -38,24 +49,15 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param config
    */
   public ShooterSubsystem(PwmLEDs leds) {
-    public class Map {
-      public static final int TALONFX_CAN_ID = 20;
-      public static final int VICTORSPX_CAN_ID = 19;
-      public static final boolean TALONFX_INVERTED = false;
-      public static final boolean VICTORSPX_INVERTED = false;
-      public static final int NOTE_DETECTOR_DIO_CHANNEL = 7;
-      public static final int ELEVATION_SOLENOID_FORWARD_CHANNEL = 6;
-      public static final int ELEVATION_SOLENOID_REVERSE_CHANNEL = 7;
-    }
     m_leds = leds;
     setName("Shooter");
 
-    m_talonFX = new TalonFX(Map.TALONFX_CAN_ID);
+    m_talonFX = new TalonFX(VMap.TALONFX_CAN_ID);
     m_talonFX.getConfigurator().apply(new TalonFXConfiguration());
     m_talonFX.setInverted(true);
     m_talonFX.setNeutralMode(NeutralModeValue.Brake);
 
-    m_victorSPX = new VictorSPX(Map.VICTORSPX_CAN_ID);
+    m_victorSPX = new VictorSPX(VMap.VICTORSPX_CAN_ID);
     m_victorSPX.configFactoryDefault();
     m_victorSPX.setNeutralMode(NeutralMode.Brake);
 
@@ -63,11 +65,11 @@ public class ShooterSubsystem extends SubsystemBase {
       new DoubleSolenoid(
         30,
         PneumaticsModuleType.REVPH,
-        Map.ELEVATION_SOLENOID_FORWARD_CHANNEL,
-        Map.ELEVATION_SOLENOID_REVERSE_CHANNEL
+        VMap.ELEVATION_SOLENOID_FORWARD_CHANNEL,
+        VMap.ELEVATION_SOLENOID_REVERSE_CHANNEL
       );
 
-    m_noteDetector = new DigitalInput(Map.NOTE_DETECTOR_DIO_CHANNEL);
+    m_noteDetector = new DigitalInput(VMap.NOTE_DETECTOR_DIO_CHANNEL);
   }
 
   //#region Control Methods
